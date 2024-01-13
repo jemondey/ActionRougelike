@@ -16,7 +16,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<AActor> ProjectileClass;
 	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AActor> BlackholeClass;
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AActor> DashClass;
+	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackAnim;
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	float MaxRange = 10000;
+
+	bool bCanAttack = true;
 
 public:
 	// Sets default values for this character's properties
@@ -36,7 +44,11 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void PrimaryAttack();
-	void PrimaryAttack_TimeElapsed();
+	void SecondaryAttack();
+	void Dash();
+	UFUNCTION()
+	void PrimaryAttack_TimeElapsed(TSubclassOf<AActor> SpawnClass);
+	FTimerDelegate TimerDelegate;
 	FTimerHandle TimerHandle_PrimaryAttack;
 	void PrimaryInteract();
 

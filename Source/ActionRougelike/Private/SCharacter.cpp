@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SInteractionComponent.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -54,6 +55,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
+	PlayerInputComponent->BindAction("SecondaryAttack", IE_Pressed, this, &ASCharacter::SecondaryAttack);
+	PlayerInputComponent->BindAction("Teleport", IE_Pressed, this, &ASCharacter::Dash);
 }
 
 void ASCharacter::MoveForward(float Value)
@@ -75,22 +78,62 @@ void ASCharacter::MoveRight(float Value)
 
 void ASCharacter::PrimaryAttack()
 {
-	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	FTransform SpawnTM = FTransform(GetActorRotation(), HandLocation);
-	PlayAnimMontage(AttackAnim);
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+	if (bCanAttack)
+	{
+		PlayAnimMontage(AttackAnim);
+		TimerDelegate.BindUFunction(this, FName("PrimaryAttack_TimeElapsed"), ProjectileClass);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_PrimaryAttack, TimerDelegate, 0.2f, false);
+		bCanAttack = false;
+	}
 }
 
-void ASCharacter::PrimaryAttack_TimeElapsed()
+void ASCharacter::SecondaryAttack()
+{
+	if (bCanAttack)
+	{
+		PlayAnimMontage(AttackAnim);
+		TimerDelegate.BindUFunction(this, FName("PrimaryAttack_TimeElapsed"), BlackholeClass);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_PrimaryAttack, TimerDelegate, 0.2f, false);
+		bCanAttack = false;
+	}
+}
+
+void ASCharacter::Dash()
+{
+	if (bCanAttack)
+	{
+		PlayAnimMontage(AttackAnim);
+		TimerDelegate.BindUFunction(this, FName("PrimaryAttack_TimeElapsed"), DashClass);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_PrimaryAttack, TimerDelegate, 0.2f, false);
+		bCanAttack = false;
+	}
+}
+
+void ASCharacter::PrimaryAttack_TimeElapsed(TSubclassOf<AActor> SpawnClass)
 {
 	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
+	FVector CameraStart = CameraComp->GetComponentLocation();
+	FVector CameraEnd = CameraStart + (CameraComp->GetForwardVector() * MaxRange);
+	FVector CameraPoint;
+	FRotator Rotator;
+	FHitResult HitRes;
+
+	if (GetWorld()->LineTraceSingleByChannel(HitRes, CameraStart, CameraEnd, ECollisionChannel::ECC_Visibility))
+	{
+		CameraPoint = HitRes.ImpactPoint;
+	}
+	else
+	{
+		CameraPoint = CameraEnd;
+	}
+	Rotator = (CameraPoint - HandLocation).Rotation();
+	FTransform SpawnTM = FTransform(Rotator, HandLocation);
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	SpawnParams.Instigator = this;
 
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+	GetWorld()->SpawnActor<AActor>(SpawnClass, SpawnTM, SpawnParams);
+	bCanAttack = true;
 }
 
 void ASCharacter::PrimaryInteract()
