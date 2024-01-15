@@ -40,6 +40,8 @@ protected:
 	class UCameraComponent* CameraComp;
 	UPROPERTY(VisibleAnywhere)
 	class USInteractionComponent* InteractionComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class USAttributeComponent* AttributeComp;
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
