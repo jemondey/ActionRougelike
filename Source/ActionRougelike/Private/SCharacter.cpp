@@ -35,6 +35,7 @@ void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	AttributeComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 }
 
 // Called every frame
@@ -141,4 +142,13 @@ void ASCharacter::PrimaryAttack_TimeElapsed(TSubclassOf<AActor> SpawnClass)
 void ASCharacter::PrimaryInteract()
 {
 	InteractionComp->PrimaryInteract();
+}
+
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+	if (NewHealth <= 0.0f && Delta < 0.0f)
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		DisableInput(PC);
+	}
 }
