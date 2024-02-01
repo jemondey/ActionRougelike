@@ -52,6 +52,8 @@ protected:
 	void PrimaryAttack_TimeElapsed(TSubclassOf<AActor> SpawnClass);
 	FTimerDelegate TimerDelegate;
 	FTimerHandle TimerHandle_PrimaryAttack;
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* CastEmitter;
 	void PrimaryInteract();
 
 	UFUNCTION()

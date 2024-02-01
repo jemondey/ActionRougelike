@@ -8,6 +8,7 @@
 #include "SInteractionComponent.h"
 #include "DrawDebugHelpers.h"
 #include "SAttributeComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -84,6 +85,7 @@ void ASCharacter::PrimaryAttack()
 	if (bCanAttack)
 	{
 		PlayAnimMontage(AttackAnim);
+		UGameplayStatics::SpawnEmitterAttached(CastEmitter, GetMesh(), TEXT("Muzzle_01"), FVector::ZeroVector, FRotator::ZeroRotator, FVector(0.4f), EAttachLocation::SnapToTarget);
 		TimerDelegate.BindUFunction(this, FName("PrimaryAttack_TimeElapsed"), ProjectileClass);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_PrimaryAttack, TimerDelegate, 0.2f, false);
 		bCanAttack = false;
@@ -146,6 +148,11 @@ void ASCharacter::PrimaryInteract()
 
 void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
+	if (Delta < 0.0f)
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
+	}
+
 	if (NewHealth <= 0.0f && Delta < 0.0f)
 	{
 		APlayerController* PC = Cast<APlayerController>(GetController());

@@ -25,6 +25,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Attributes")
 	float Health;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Attributes")
+	float HealthMax;
 
 public:	
 	// Called every frame
@@ -38,4 +40,10 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
+
+	//UFUNCTION(BlueprintCallable)
+	//float GetHealth();
+
+	bool IsFullHealth();
+	float GetHealthMax();
 };

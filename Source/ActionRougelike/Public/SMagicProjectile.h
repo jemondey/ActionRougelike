@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UParticleSystemComponent* EffectComp;
 
+	UPROPERTY(VisibleAnywhere)
+	class UAudioComponent* AudioComp;
+
 	UFUNCTION()
 	void OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -35,5 +38,15 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	USoundBase* ImpactSound;
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<UCameraShakeBase> CameraShake;
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	float CameraShakeInnerRadius;
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	float CameraShakeOuterRadius;
 
 };
