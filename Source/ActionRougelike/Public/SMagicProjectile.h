@@ -41,6 +41,8 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	UParticleSystem* HitParticles;
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
 	USoundBase* ImpactSound;
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<UCameraShakeBase> CameraShake;
