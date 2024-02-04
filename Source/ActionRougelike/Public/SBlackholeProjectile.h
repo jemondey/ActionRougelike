@@ -3,14 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SMagicProjectile.h"
+#include "SProjectileBase.h"
 #include "SBlackholeProjectile.generated.h"
 
-/**
- * 
- */
 UCLASS()
-class ACTIONROUGELIKE_API ASBlackholeProjectile : public ASMagicProjectile
+class ACTIONROUGELIKE_API ASBlackholeProjectile : public ASProjectileBase
 {
 	GENERATED_BODY()
 
@@ -31,7 +28,7 @@ private:
 	FTimerHandle Timer;
 
 public:
-	// Called every frame
+	
 	virtual void Tick(float DeltaTime) override;
 	
 };

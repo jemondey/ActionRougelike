@@ -3,14 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SMagicProjectile.h"
+#include "SProjectileBase.h"
 #include "SDashProjectile.generated.h"
 
-/**
- * 
- */
 UCLASS()
-class ACTIONROUGELIKE_API ASDashProjectile : public ASMagicProjectile
+class ACTIONROUGELIKE_API ASDashProjectile : public ASProjectileBase
 {
 	GENERATED_BODY()
 
