@@ -12,6 +12,7 @@
 ASAICharacter::ASAICharacter()
 {
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>("SensingComponent");
+	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComponent");
 }
 
 void ASAICharacter::PostInitializeComponents()
@@ -29,6 +30,6 @@ void ASAICharacter::OnPawnSeen(APawn* Pawn)
 		UBlackboardComponent* BBC = AIC->GetBlackboardComponent();
 		BBC->SetValueAsObject("TargetActor", Pawn);
 
-		DrawDebugString(GetWorld(), GetActorLocation(), "PAWN SPOTTED", nullptr);
+		DrawDebugString(GetWorld(), GetActorLocation(), "PAWN SPOTTED", nullptr, FColor::White, 1.f, false);
 	}
 }

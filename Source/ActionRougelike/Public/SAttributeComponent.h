@@ -34,12 +34,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnHealthChanged OnHealthChanged;
-
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool ApplyHealthChange(float Delta);
-	
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
+	UFUNCTION(BlueprintCallable)
+	float GetHealth();
 
 	//UFUNCTION(BlueprintCallable)
 	//float GetHealth();

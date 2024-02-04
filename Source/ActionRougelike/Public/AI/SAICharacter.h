@@ -20,6 +20,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UPawnSensingComponent* PawnSensingComp;
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class USAttributeComponent* AttributeComp;
 
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
