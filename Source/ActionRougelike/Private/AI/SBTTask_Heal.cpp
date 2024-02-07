@@ -16,7 +16,7 @@ EBTNodeResult::Type USBTTask_Heal::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(MyPawn->GetComponentByClass(USAttributeComponent::StaticClass()));
 
 		float Delta = AttributeComp->GetHealthMax() - AttributeComp->GetHealth();
-		AttributeComp->ApplyHealthChange(Delta);
+		AttributeComp->ApplyHealthChange(nullptr, Delta);
 
 		return EBTNodeResult::Succeeded;
 

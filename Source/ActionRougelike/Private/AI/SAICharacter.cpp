@@ -6,6 +6,8 @@
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "DrawDebugHelpers.h"
+#include "BrainComponent.h"
+#include "SAttributeComponent.h"
 
 
 // Sets default values
@@ -20,16 +22,46 @@ void ASAICharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	PawnSensingComp->OnSeePawn.AddDynamic(this, &ASAICharacter::OnPawnSeen);
+	AttributeComp->OnHealthChanged.AddDynamic(this, &ASAICharacter::OnHealthChanged);
 }
 
-void ASAICharacter::OnPawnSeen(APawn* Pawn)
+void ASAICharacter::SetTargetActor(AActor* TargetActor)
 {
 	AAIController* AIC = Cast<AAIController>(GetController());
 	if(AIC)
 	{
-		UBlackboardComponent* BBC = AIC->GetBlackboardComponent();
-		BBC->SetValueAsObject("TargetActor", Pawn);
+		AIC->GetBlackboardComponent()->SetValueAsObject("TargetActor", TargetActor);
+	}
+}
 
-		DrawDebugString(GetWorld(), GetActorLocation(), "PAWN SPOTTED", nullptr, FColor::White, 1.f, false);
+void ASAICharacter::OnPawnSeen(APawn* Pawn)
+{
+	SetTargetActor(Pawn);
+	DrawDebugString(GetWorld(), GetActorLocation(), "PAWN SPOTTED", nullptr, FColor::White, 1.f, false);
+}
+
+void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+	if (Delta <= 0.0f)
+	{
+		if (InstigatorActor != this)
+		{
+			SetTargetActor(InstigatorActor);
+		}
+
+		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
+
+		if (NewHealth <= 0.0f)
+		{
+			AAIController* AIC = Cast<AAIController>(GetController());
+			if (AIC)
+			{
+				AIC->GetBrainComponent()->StopLogic("Died");
+			}
+
+			GetMesh()->SetAllBodiesSimulatePhysics(true);
+			GetMesh()->SetCollisionProfileName("Ragdoll");
+			SetLifeSpan(5.f);
+		}
 	}
 }

@@ -11,6 +11,25 @@ USAttributeComponent::USAttributeComponent()
 	
 }
 
+USAttributeComponent* USAttributeComponent::GetAtrributes(AActor* FromActor)
+{
+	if (FromActor)
+	{
+		return FromActor->FindComponentByClass<USAttributeComponent>();
+	}
+	return nullptr;
+}
+
+bool USAttributeComponent::IsActorAlive(AActor* Actor)
+{
+	USAttributeComponent* AttributeComp = GetAtrributes(Actor);
+	if (AttributeComp)
+	{
+		return AttributeComp->IsAlive();
+	}
+	return false;
+}
+
 
 // Called when the game starts
 void USAttributeComponent::BeginPlay()
@@ -30,11 +49,11 @@ void USAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	// ...
 }
 
-bool USAttributeComponent::ApplyHealthChange(float Delta)
+bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
 	Health += Delta;
 	Health = FMath::Clamp(Health, 0, HealthMax);
-	OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
+	OnHealthChanged.Broadcast(InstigatorActor, this, Health, Delta);
 	return true;
 }
 
