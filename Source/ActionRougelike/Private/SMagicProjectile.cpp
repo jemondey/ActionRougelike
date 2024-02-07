@@ -13,6 +13,8 @@ ASMagicProjectile::ASMagicProjectile()
 
 	CameraShakeInnerRadius = 1000.f;
 	CameraShakeOuterRadius = 5000.f;
+
+	DamageAmount = -50.f;
 }
 
 void ASMagicProjectile::BeginPlay()
@@ -36,7 +38,7 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
 		if (AttributeComp)
 		{
-			AttributeComp->ApplyHealthChange(-20.f);
+			AttributeComp->ApplyHealthChange(GetInstigator(), DamageAmount);
 		}
 		FTransform SpawnTransform = FTransform(GetActorRotation(), GetActorLocation());
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticles, SpawnTransform);
