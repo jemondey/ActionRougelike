@@ -28,7 +28,7 @@ void ASBlackholeProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedCompon
 	USAttributeComponent* ATR = USAttributeComponent::GetAtrributes(OtherActor);
 	if (ATR && OtherActor != UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
 	{
-		ATR->ApplyHealthChange(this, -100.f);
+		ATR->ApplyHealthChange(GetInstigator(), -100.f);
 	}
 	else if(OtherActor != UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
 	{

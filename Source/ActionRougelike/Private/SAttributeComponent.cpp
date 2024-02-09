@@ -30,27 +30,13 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor)
 	return false;
 }
 
-
-// Called when the game starts
-void USAttributeComponent::BeginPlay()
-{
-	Super::BeginPlay();
-	
-
-	
-}
-
-
-// Called every frame
-void USAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
+	if (!GetOwner()->CanBeDamaged())
+	{
+		return false;
+	}
+
 	Health += Delta;
 	Health = FMath::Clamp(Health, 0, HealthMax);
 	OnHealthChanged.Broadcast(InstigatorActor, this, Health, Delta);
@@ -67,6 +53,11 @@ float USAttributeComponent::GetHealth()
 	return Health;
 }
 
+bool USAttributeComponent::Kill(AActor* InstigatorActor)
+{
+	return ApplyHealthChange(InstigatorActor, -GetHealthMax());
+}
+
 bool USAttributeComponent::IsFullHealth()
 {
 	return Health == HealthMax;
@@ -76,9 +67,3 @@ float USAttributeComponent::GetHealthMax()
 {
 	return HealthMax;
 }
-
-//float USAttributeComponent::GetHealth()
-//{
-//	return Health;
-//}
-

@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "SAICharacter.generated.h"
 
+class UUserWidget;
+
 UCLASS()
 class ACTIONROUGELIKE_API ASAICharacter : public ACharacter
 {
@@ -17,6 +19,11 @@ public:
 	virtual void PostInitializeComponents() override;
 
 protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> HealthBarWidgetClass;
+	
+	class USWorldUserWidget* ActiveHealthBar;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UPawnSensingComponent* PawnSensingComp;

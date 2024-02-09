@@ -16,7 +16,7 @@ class ACTIONROUGELIKE_API USAttributeComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
+	
 	USAttributeComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
@@ -25,8 +25,6 @@ public:
 	static bool IsActorAlive(AActor* Actor);
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Attributes")
 	float Health;
@@ -34,8 +32,6 @@ protected:
 	float HealthMax;
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnHealthChanged OnHealthChanged;
@@ -45,9 +41,8 @@ public:
 	bool IsAlive() const;
 	UFUNCTION(BlueprintCallable)
 	float GetHealth();
-
-	//UFUNCTION(BlueprintCallable)
-	//float GetHealth();
+	UFUNCTION(BlueprintCallable)
+	bool Kill(AActor* InstigatorActor);
 
 	bool IsFullHealth();
 	float GetHealthMax();
