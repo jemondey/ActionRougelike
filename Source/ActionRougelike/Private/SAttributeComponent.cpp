@@ -2,6 +2,9 @@
 
 
 #include "SAttributeComponent.h"
+#include "SGameModeBase.h"
+
+static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("vm.DamageMultiplier"), 1.0f, TEXT("Global Damage Modifier for Attribute Component"), ECVF_Cheat);
 
 // Sets default values for this component's properties
 USAttributeComponent::USAttributeComponent()
@@ -11,7 +14,7 @@ USAttributeComponent::USAttributeComponent()
 	
 }
 
-USAttributeComponent* USAttributeComponent::GetAtrributes(AActor* FromActor)
+USAttributeComponent* USAttributeComponent::GetAttributes(AActor* FromActor)
 {
 	if (FromActor)
 	{
@@ -22,7 +25,7 @@ USAttributeComponent* USAttributeComponent::GetAtrributes(AActor* FromActor)
 
 bool USAttributeComponent::IsActorAlive(AActor* Actor)
 {
-	USAttributeComponent* AttributeComp = GetAtrributes(Actor);
+	USAttributeComponent* AttributeComp = GetAttributes(Actor);
 	if (AttributeComp)
 	{
 		return AttributeComp->IsAlive();
@@ -32,14 +35,29 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor)
 
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
-	if (!GetOwner()->CanBeDamaged())
+	if (!GetOwner()->CanBeDamaged() && Delta < 0.0f)
 	{
 		return false;
+	}
+
+	if (Delta < 0.0f)
+	{
+		Delta *= CVarDamageMultiplier.GetValueOnGameThread();
 	}
 
 	Health += Delta;
 	Health = FMath::Clamp(Health, 0, HealthMax);
 	OnHealthChanged.Broadcast(InstigatorActor, this, Health, Delta);
+
+	if (Delta < 0.0f && Health <= 0.0f)
+	{
+		ASGameModeBase* GM = GetWorld()->GetAuthGameMode<ASGameModeBase>();
+		if(GM)
+		{
+			GM->OnActorKilled(GetOwner(), InstigatorActor);
+		}
+	}
+
 	return true;
 }
 

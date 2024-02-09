@@ -8,7 +8,9 @@
 #include "AI/SAICharacter.h"
 #include "SAttributeComponent.h"
 #include "EngineUtils.h"
+#include "SCharacter.h"
 
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("vm.SpawnBots"), true, TEXT("Enable bot spawning"), ECVF_Cheat);
 
 ASGameModeBase::ASGameModeBase()
 {
@@ -24,6 +26,11 @@ void ASGameModeBase::StartPlay()
 
 void ASGameModeBase::SpawnBotTimerElapsed()
 {
+	if (!CVarSpawnBots.GetValueOnGameThread())
+	{
+		return;
+	}
+
 	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
 	if (QueryInstance)
 	{
@@ -41,7 +48,7 @@ void ASGameModeBase::OnQueryFinished(UEnvQueryInstanceBlueprintWrapper* QueryIns
 	int32 NrOfAliveBots = 0;
 	for (ASAICharacter* Bot : TActorRange<ASAICharacter>(GetWorld()))
 	{
-		USAttributeComponent* AttributeComp = USAttributeComponent::GetAtrributes(Bot);
+		USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(Bot);
 		if (AttributeComp && AttributeComp->IsAlive())
 		{
 			NrOfAliveBots++;
@@ -59,8 +66,6 @@ void ASGameModeBase::OnQueryFinished(UEnvQueryInstanceBlueprintWrapper* QueryIns
 		return;
 	}
 
-	
-
 	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
 	if (Locations.Num() > 0)
 	{
@@ -68,11 +73,33 @@ void ASGameModeBase::OnQueryFinished(UEnvQueryInstanceBlueprintWrapper* QueryIns
 	}
 }
 
+void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
+{
+	ASCharacter* Player = Cast<ASCharacter>(VictimActor);
+	if (Player)
+	{
+		FTimerHandle TimerHandle_RespawnDelay;
+		FTimerDelegate Delegate;
+		Delegate.BindUFunction(this, "RespawnPlayerElapsed", Player->GetController());
+		float RespawnRate = 5.0f;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnRate, false);
+	}
+}
+
+void ASGameModeBase::RespawnPlayerElapsed(AController* PlayerController)
+{
+	if (PlayerController)
+	{
+		PlayerController->UnPossess();
+		RestartPlayer(PlayerController);
+	}
+}
+
 void ASGameModeBase::KillAll()
 {
 	for (ASAICharacter* Bot : TActorRange<ASAICharacter>(GetWorld()))
 	{
-		USAttributeComponent* AttributeComp = USAttributeComponent::GetAtrributes(Bot);
+		USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(Bot);
 		if (AttributeComp && AttributeComp->IsAlive())
 		{
 			AttributeComp->Kill(this);

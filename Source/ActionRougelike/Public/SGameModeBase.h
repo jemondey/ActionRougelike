@@ -18,6 +18,11 @@ public:
 
 	virtual void StartPlay() override;
 
+	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
+
+	UFUNCTION()
+	void RespawnPlayerElapsed(AController* PlayerController);
+
 protected:
 
 	FTimerHandle TimerHandle_SpawnBots;

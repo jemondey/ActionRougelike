@@ -68,6 +68,11 @@ void ASCharacter::HealSelf(float Amount /* = 100 */)
 	AttributeComp->ApplyHealthChange(this, Amount);
 }
 
+FVector ASCharacter::GetPawnViewLocation() const
+{
+	return CameraComp->GetComponentLocation();
+}
+
 void ASCharacter::MoveForward(float Value)
 {
 	FRotator ControlRot = GetControlRotation();

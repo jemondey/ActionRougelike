@@ -6,6 +6,7 @@
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "SGameplayFunctionLibrary.h"
 
 ASMagicProjectile::ASMagicProjectile()
 {
@@ -14,7 +15,7 @@ ASMagicProjectile::ASMagicProjectile()
 	CameraShakeInnerRadius = 1000.f;
 	CameraShakeOuterRadius = 5000.f;
 
-	DamageAmount = -50.f;
+	DamageAmount = 50.f;
 }
 
 void ASMagicProjectile::BeginPlay()
@@ -35,15 +36,18 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+		/*USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
 		if (AttributeComp)
 		{
 			AttributeComp->ApplyHealthChange(GetInstigator(), DamageAmount);
+		}*/
+		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
+		{
+			FTransform SpawnTransform = FTransform(GetActorRotation(), GetActorLocation());
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticles, SpawnTransform);
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, GetActorLocation());
+			UGameplayStatics::PlayWorldCameraShake(GetWorld(), CameraShake, GetActorLocation(), CameraShakeInnerRadius, CameraShakeOuterRadius);
+			Destroy();
 		}
-		FTransform SpawnTransform = FTransform(GetActorRotation(), GetActorLocation());
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticles, SpawnTransform);
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, GetActorLocation());
-		UGameplayStatics::PlayWorldCameraShake(GetWorld(), CameraShake, GetActorLocation(), CameraShakeInnerRadius, CameraShakeOuterRadius);
-		Destroy();
 	}
 }

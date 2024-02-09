@@ -5,6 +5,8 @@
 #include "SGameplayInterface.h"
 #include "DrawDebugHelpers.h"
 
+static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("vm.InteractionDebugDraw"), true, TEXT("Draw Debug Lines/Spheres for Interaction Component"), ECVF_Cheat);
+
 // Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
 {
@@ -15,9 +17,6 @@ USInteractionComponent::USInteractionComponent()
 	// ...
 }
 
-
-
-
 // Called when the game starts
 void USInteractionComponent::BeginPlay()
 {
@@ -26,7 +25,6 @@ void USInteractionComponent::BeginPlay()
 	// ...
 	
 }
-
 
 // Called every frame
 void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -69,12 +67,17 @@ void USInteractionComponent::PrimaryInteract()
 			{
 				APawn* MyPawn = Cast<APawn>(Owner);
 				ISGameplayInterface::Execute_Interact(HitActor, MyPawn);
-				DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 30.f, 32, Color, false, 3.f);
+				if(CVarDebugDrawInteraction.GetValueOnGameThread())
+				{
+					DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 30.f, 32, Color, false, 3.f);
+				}
 				break;
 			}
 		}
 	}
-	
-	DrawDebugLine(GetWorld(), EyeLocation, End, Color, false, 3.f);
+	if(CVarDebugDrawInteraction.GetValueOnGameThread())
+	{
+		DrawDebugLine(GetWorld(), EyeLocation, End, Color, false, 3.f);
+	}
 	
 }

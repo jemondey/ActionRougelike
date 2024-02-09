@@ -20,7 +20,7 @@ public:
 	USAttributeComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	static USAttributeComponent* GetAtrributes(AActor* FromActor);
+	static USAttributeComponent* GetAttributes(AActor* FromActor);
 	UFUNCTION(BlueprintCallable, Category = "Attributes", meta = (DisplayName = "IsAlive"))
 	static bool IsActorAlive(AActor* Actor);
 
