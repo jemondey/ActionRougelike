@@ -47,4 +47,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "AI")
 	UCurveFloat* DifficultyCurve;
 
+private:
+
+	bool bIsRespawning;
+
 };

@@ -15,6 +15,7 @@ static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("vm.SpawnBots"), true, TEXT
 ASGameModeBase::ASGameModeBase()
 {
 	SpawnTimerInterval = 2.0f;
+	bIsRespawning = false;
 }
 
 void ASGameModeBase::StartPlay()
@@ -75,14 +76,18 @@ void ASGameModeBase::OnQueryFinished(UEnvQueryInstanceBlueprintWrapper* QueryIns
 
 void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 {
-	ASCharacter* Player = Cast<ASCharacter>(VictimActor);
-	if (Player)
+	if (!bIsRespawning)
 	{
-		FTimerHandle TimerHandle_RespawnDelay;
-		FTimerDelegate Delegate;
-		Delegate.BindUFunction(this, "RespawnPlayerElapsed", Player->GetController());
-		float RespawnRate = 5.0f;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnRate, false);
+		bIsRespawning = true;
+		ASCharacter* Player = Cast<ASCharacter>(VictimActor);
+		if (Player)
+		{
+			FTimerHandle TimerHandle_RespawnDelay;
+			FTimerDelegate Delegate;
+			Delegate.BindUFunction(this, "RespawnPlayerElapsed", Player->GetController());
+			float RespawnRate = 5.0f;
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnRate, false);
+		}
 	}
 }
 
@@ -92,6 +97,7 @@ void ASGameModeBase::RespawnPlayerElapsed(AController* PlayerController)
 	{
 		PlayerController->UnPossess();
 		RestartPlayer(PlayerController);
+		bIsRespawning = false;
 	}
 }
 
