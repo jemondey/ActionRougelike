@@ -36,10 +36,7 @@ protected:
 	class UEnvQuery* SpawnBotQuery;
 
 	UFUNCTION()
-	void OnQueryFinished(class UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
-
-	UFUNCTION(Exec)
-	void KillAll();
+	void OnQueryFinishedBotSpawn(class UEnvQueryInstanceBlueprintWrapper* BotQueryInstance, EEnvQueryStatus::Type BotQueryStatus);
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TSubclassOf<AActor> MinionClass;
@@ -47,7 +44,28 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "AI")
 	UCurveFloat* DifficultyCurve;
 
+	UFUNCTION(Exec)
+	void KillAll();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Powerup")
+	class UEnvQuery* SpawnPowerupQuery;
+
+	UFUNCTION()
+	void OnQueryFinishedPowerupSpawn(class UEnvQueryInstanceBlueprintWrapper* PowerupQueryInstance, EEnvQueryStatus::Type PowerupQueryStatus);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Powerup")
+	TArray<TSubclassOf<AActor>> PowerupClasses;
+
+	UPROPERTY(EditAnywhere, Category = "Powerup")
+	int32 DesiredPowerupCount;
+
+	UPROPERTY(EditAnywhere, Category = "Powerup")
+	float RequiredPowerupDistance;
+
 private:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Credits")
+	int32 CreditsPerKill;
 
 	bool bIsRespawning;
 
