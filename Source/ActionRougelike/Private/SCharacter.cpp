@@ -9,6 +9,7 @@
 #include "DrawDebugHelpers.h"
 #include "SAttributeComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "SActionComponent.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -29,6 +30,7 @@ ASCharacter::ASCharacter()
 
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
+	ActionComp = CreateDefaultSubobject<USActionComponent>("ActionComp");
 }
 
 // Called when the game starts or when spawned
@@ -56,11 +58,25 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
-	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
+
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
 	PlayerInputComponent->BindAction("SecondaryAttack", IE_Pressed, this, &ASCharacter::SecondaryAttack);
 	PlayerInputComponent->BindAction("Teleport", IE_Pressed, this, &ASCharacter::Dash);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASCharacter::StartSprint);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASCharacter::StopSprint);
+}
+
+void ASCharacter::StartSprint()
+{
+	ActionComp->StartActionByName(this, "Sprint");
+}
+
+void ASCharacter::StopSprint()
+{
+	ActionComp->StopActionByName(this, "Sprint");
 }
 
 void ASCharacter::HealSelf(float Amount /* = 100 */)
@@ -92,63 +108,17 @@ void ASCharacter::MoveRight(float Value)
 
 void ASCharacter::PrimaryAttack()
 {
-	if (bCanAttack)
-	{
-		PlayAnimMontage(AttackAnim);
-		UGameplayStatics::SpawnEmitterAttached(CastEmitter, GetMesh(), TEXT("Muzzle_01"), FVector::ZeroVector, FRotator::ZeroRotator, FVector(0.4f), EAttachLocation::SnapToTarget);
-		TimerDelegate.BindUFunction(this, FName("PrimaryAttack_TimeElapsed"), ProjectileClass);
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_PrimaryAttack, TimerDelegate, 0.2f, false);
-		bCanAttack = false;
-	}
+	ActionComp->StartActionByName(this, "PrimaryAttack");
 }
 
 void ASCharacter::SecondaryAttack()
 {
-	if (bCanAttack)
-	{
-		PlayAnimMontage(AttackAnim);
-		TimerDelegate.BindUFunction(this, FName("PrimaryAttack_TimeElapsed"), BlackholeClass);
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_PrimaryAttack, TimerDelegate, 0.2f, false);
-		bCanAttack = false;
-	}
+	ActionComp->StartActionByName(this, "SecondaryAttack");
 }
 
 void ASCharacter::Dash()
 {
-	if (bCanAttack)
-	{
-		PlayAnimMontage(AttackAnim);
-		TimerDelegate.BindUFunction(this, FName("PrimaryAttack_TimeElapsed"), DashClass);
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_PrimaryAttack, TimerDelegate, 0.2f, false);
-		bCanAttack = false;
-	}
-}
-
-void ASCharacter::PrimaryAttack_TimeElapsed(TSubclassOf<AActor> SpawnClass)
-{
-	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	FVector CameraStart = CameraComp->GetComponentLocation();
-	FVector CameraEnd = CameraStart + (CameraComp->GetForwardVector() * MaxRange);
-	FVector CameraPoint;
-	FRotator Rotator;
-	FHitResult HitRes;
-
-	if (GetWorld()->LineTraceSingleByChannel(HitRes, CameraStart, CameraEnd, ECollisionChannel::ECC_Visibility))
-	{
-		CameraPoint = HitRes.ImpactPoint;
-	}
-	else
-	{
-		CameraPoint = CameraEnd;
-	}
-	Rotator = (CameraPoint - HandLocation).Rotation();
-	FTransform SpawnTM = FTransform(Rotator, HandLocation);
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
-
-	GetWorld()->SpawnActor<AActor>(SpawnClass, SpawnTM, SpawnParams);
-	bCanAttack = true;
+	ActionComp->StartActionByName(this, "Dash");
 }
 
 void ASCharacter::PrimaryInteract()
