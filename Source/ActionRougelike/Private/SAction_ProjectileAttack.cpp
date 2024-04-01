@@ -6,20 +6,14 @@
 
 USAction_ProjectileAttack::USAction_ProjectileAttack()
 {
-	bCanAttack = true;
+	//
 }
 
 void USAction_ProjectileAttack::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);
 
-	if (!bCanAttack)
-	{
-		return;
-	}
-
 	ACharacter* InstigatorCharacter = Cast<ACharacter>(Instigator);
-	bCanAttack = false;
 	InstigatorCharacter->PlayAnimMontage(AttackAnim);
 	TimerDelegate.BindUFunction(this, FName("ProjectileAttack_TimeElapsed"), InstigatorCharacter);
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_ProjectileAttack, TimerDelegate, 0.2f, false);
@@ -51,6 +45,4 @@ void USAction_ProjectileAttack::ProjectileAttack_TimeElapsed(ACharacter* Instiga
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
 
 	StopAction(InstigatorCharacter);
-
-	bCanAttack = true;
 }

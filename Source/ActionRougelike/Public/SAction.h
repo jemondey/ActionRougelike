@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "GameplayTagContainer.h"
 #include "SAction.generated.h"
 
 /**
@@ -20,10 +21,25 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	FName ActionName;
 
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	bool CanStart();
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	bool IsRunning();
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
 	void StartAction(AActor* Instigator);
-	UFUNCTION(BlueprintNativeEvent, Category = "Action")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Action")
 	void StopAction(AActor* Instigator);
 
 	UWorld* GetWorld() const override;
+
+protected:
+
+	UPROPERTY(EditAnywhere, Category = "Tags")
+	FGameplayTagContainer GrantsTags;
+	UPROPERTY(EditAnywhere, Category = "Tags")
+	FGameplayTagContainer BlockedTags;
+	UFUNCTION(BlueprintCallable, Category = "Tags")
+	USActionComponent* GetOwningComponent() const;
+
+	bool bIsRunning;
 };

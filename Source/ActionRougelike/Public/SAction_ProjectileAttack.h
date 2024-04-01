@@ -39,6 +39,4 @@ private:
 	FTimerDelegate TimerDelegate;
 	FTimerHandle TimerHandle_ProjectileAttack;
 
-	bool bCanAttack;
-	
 };

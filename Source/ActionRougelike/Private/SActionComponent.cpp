@@ -31,6 +31,12 @@ bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 	{
 		if (Action && Action->ActionName == ActionName)
 		{
+			if (!Action->CanStart())
+			{
+				FString ErrMsg = "Failed to start action: " + ActionName.ToString();
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, ErrMsg);
+				continue;
+			}
 			Action->StartAction(Instigator);
 			return true;
 		}
@@ -44,8 +50,11 @@ bool USActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 	{
 		if (Action && Action->ActionName == ActionName)
 		{
-			Action->StopAction(Instigator);
-			return true;
+			if(Action->IsRunning())
+			{
+				Action->StopAction(Instigator);
+				return true;
+			}
 		}
 	}
 	return false;
@@ -68,5 +77,7 @@ void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	FString Message = GetNameSafe(GetOwner()) + ": " + ActiveGameplayTags.ToStringSimple();
+	GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::White, Message);
 }
 
