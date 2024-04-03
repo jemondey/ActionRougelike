@@ -9,6 +9,7 @@
 #include "SGameplayFunctionLibrary.h"
 #include "SActionComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "SActionEffect.h"
 
 ASMagicProjectile::ASMagicProjectile()
 {
@@ -55,6 +56,10 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, GetActorLocation());
 			UGameplayStatics::PlayWorldCameraShake(GetWorld(), CameraShake, GetActorLocation(), CameraShakeInnerRadius, CameraShakeOuterRadius);
 			
+			if(ActionComp)
+			{
+				ActionComp->AddAction(this, BurningActionClass);
+			}
 		}
 		Destroy();
 	}

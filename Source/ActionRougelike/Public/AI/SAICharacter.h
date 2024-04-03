@@ -29,6 +29,8 @@ protected:
 	class UPawnSensingComponent* PawnSensingComp;
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class USAttributeComponent* AttributeComp;
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class USActionComponent* ActionComp;
 
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
