@@ -13,6 +13,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SActionComponent.h"
+#include "SWorldUserWidget.h"
 
 
 // Sets default values
@@ -43,10 +44,29 @@ void ASAICharacter::SetTargetActor(AActor* TargetActor)
 	}
 }
 
+AActor* ASAICharacter::GetTargetActor()
+{
+	AAIController* AIC = Cast<AAIController>(GetController());
+	if (AIC)
+	{
+		return Cast<AActor>(AIC->GetBlackboardComponent()->GetValueAsObject("TargetActor"));
+	}
+
+	return nullptr;
+}
+
 void ASAICharacter::OnPawnSeen(APawn* Pawn)
 {
-	SetTargetActor(Pawn);
-	DrawDebugString(GetWorld(), GetActorLocation(), "PAWN SPOTTED", nullptr, FColor::White, 1.f, false);
+	if (GetTargetActor() != Pawn)
+	{
+		SetTargetActor(Pawn);
+		USWorldUserWidget* WidgetInstance = CreateWidget<USWorldUserWidget>(GetWorld(), SpottedWidgetClass);
+		if (WidgetInstance)
+		{
+			WidgetInstance->AttachedActor = this;
+			WidgetInstance->AddToViewport(10);
+		}
+	}
 }
 
 void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
