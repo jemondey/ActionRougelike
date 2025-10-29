@@ -31,6 +31,8 @@ protected:
 	USWorldUserWidget* DefaultWidgetInstance;
 	UPROPERTY()
 	AActor* FocusedActor;
+	UFUNCTION(Server, Reliable)
+	void ServerInteract(AActor* InFocus);
 
 public:	
 	// Called every frame

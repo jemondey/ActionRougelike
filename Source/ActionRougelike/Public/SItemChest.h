@@ -31,6 +31,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* LidMesh;
 
+	UPROPERTY(ReplicatedUsing = "OnRep_LidOpened", BlueprintReadOnly)
+	bool bLidOpened;
+	UFUNCTION()
+	void OnRep_LidOpened();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

@@ -2,6 +2,7 @@
 
 
 #include "SItemChest.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASItemChest::ASItemChest()
@@ -15,6 +16,8 @@ ASItemChest::ASItemChest()
 	LidMesh->SetupAttachment(BaseMesh);
 
 	TargetPitch = 110.f;
+
+	SetReplicates(true);
 }
 
 
@@ -23,6 +26,12 @@ void ASItemChest::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void ASItemChest::OnRep_LidOpened()
+{
+	float CurrPitch = bLidOpened ? TargetPitch : 0.0f;
+	LidMesh->SetRelativeRotation(FRotator(CurrPitch, 0, 0));
 }
 
 // Called every frame
@@ -34,6 +43,13 @@ void ASItemChest::Tick(float DeltaTime)
 
 void ASItemChest::Interact_Implementation(APawn* InstigatorPawn)
 {
-	FRotator Rotator(TargetPitch, 0.f, 0.f);
-	LidMesh->SetRelativeRotation(Rotator);
+	bLidOpened = !bLidOpened;
+	OnRep_LidOpened();
+}
+
+void ASItemChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASItemChest, bLidOpened);
 }
