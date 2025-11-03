@@ -40,27 +40,15 @@ void USActionEffect_Thorns::OnHealthChanged(AActor* InstigatorActor, USAttribute
 {
 	AActor* OwningActor = GetOwningComponent()->GetOwner();
 
-	if (InstigatorActor == OwningActor)
+	if (InstigatorActor->GetClass() == OwningActor->GetClass())
 	{
-		FString ErrMsg = "Should have been executed already";
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, ErrMsg);
 		return;
-	}
-
-	if (!InstigatorActor)
-	{
-		FString ErrMsg1 = "NO INSTIGATOR!!!!";
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, ErrMsg1);
 	}
 
 	if (Delta < 0.f)
 	{
-		//FString ErrMsg1 = "Name of Instig: " + InstigatorActor->GetName();
-		//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, ErrMsg1);
-		int32 DamageAmount = FMath::RoundToInt(Delta /** ReflectFraction*/);
+		int32 DamageAmount = FMath::RoundToInt(Delta);
 		DamageAmount = FMath::Abs(DamageAmount);
 		USGameplayFunctionLibrary::ApplyDamage(OwningActor, InstigatorActor, DamageAmount);
-		FString ErrMsg = "Should have been executed already";
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, ErrMsg);
 	}
 }
