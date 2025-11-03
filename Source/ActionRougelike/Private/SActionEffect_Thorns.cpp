@@ -40,6 +40,11 @@ void USActionEffect_Thorns::OnHealthChanged(AActor* InstigatorActor, USAttribute
 {
 	AActor* OwningActor = GetOwningComponent()->GetOwner();
 
+	if (!OwningActor || !InstigatorActor)
+	{
+		return;
+	}
+
 	if (InstigatorActor->GetClass() == OwningActor->GetClass())
 	{
 		return;
